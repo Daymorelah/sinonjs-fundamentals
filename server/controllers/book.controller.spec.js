@@ -6,6 +6,11 @@ const Transaction = require('../models').transaction;
 const sinon = require('sinon');
 
 describe('Books controller', () => {
+  const sandBox = sinon.createSandbox();
+  afterEach(() => {
+    // bookModel.findById.restore && bookModel.findById.restore();
+    sandBox.restore();
+  });
   describe('When getting a list of books', () => {
     it('Should return 4 books', () => {
       const req = httpMocks.createRequest();
@@ -41,9 +46,6 @@ describe('Books controller', () => {
 
   describe('When getting a specific book', () => {
     describe('and the book does not exist', () => {
-      afterEach(() => {
-        bookModel.findById.restore();
-      });
       it('Should return a 404', () => {
         const req = httpMocks.createRequest({
           params: {
@@ -52,7 +54,8 @@ describe('Books controller', () => {
         });
 
         const res = httpMocks.createResponse();
-        const stubFindMethod = sinon.stub(bookModel, 'findById');
+        const stubFindMethod = sandBox.stub(bookModel, 'findById');
+
         stubFindMethod.withArgs(7).resolves(null);
         return controller.getById(req, res).then(() => {
           return expect(res.statusCode).to.eql(404);
@@ -60,16 +63,15 @@ describe('Books controller', () => {
       });
     });
 
-    describe('and th ebook does exist', () => {
+    describe('and the ebook does exist', () => {
       it('should return 200', () => {
         const req = httpMocks.createRequest({
           params: {
             id: 5
           }
         });
-
         const res = httpMocks.createResponse();
-        const stubFindMethod = sinon.stub(bookModel, 'findById');
+        const stubFindMethod = sandBox.stub(bookModel, 'findById');
         stubFindMethod.withArgs(5).resolves([{id:3, book: 'The mat'}]);
         return controller.getById(req, res).then(() => {
           return expect(res.statusCode).to.eql(200);

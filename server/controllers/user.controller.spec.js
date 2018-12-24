@@ -7,11 +7,9 @@ const userModel = require('../models').user;
 const wishList = require('../models').wishlist;
 
 describe('When creating a user', () =>{
-  let timer = {};
+  const sandBox = sinon.createSandbox();
   afterEach(() => {
-    wishList.create.restore && wishList.create.restore();
-    userModel.create.restore && userModel.create.restore();
-    timer.restore && timer.restore(); 
+    sandBox.restore(); 
   });
   it('should have a customerSense field', () => {
     const req = httpMocks.createRequest({
@@ -23,10 +21,10 @@ describe('When creating a user', () =>{
     });
     const res = httpMocks.createResponse();
     
-    const newList = sinon.stub(wishList, 'create');
+    const newList = sandBox.stub(wishList, 'create');
     newList.resolves({dataValues: {id: 1}});
     
-    const spyUSerCreate = sinon.spy(userModel, 'create');
+    const spyUSerCreate = sandBox.spy(userModel, 'create');
     
     return userController.create(req, res).then(() => {
       expect(spyUSerCreate.calledWith(sinon.match({
@@ -37,7 +35,7 @@ describe('When creating a user', () =>{
   });
 
   it('should set the customer sinceField to new date', () => {
-    timer = sinon.useFakeTimers();
+    sandBox.useFakeTimers();
     const req = httpMocks.createRequest({
       body: {
         firstName: 'Shola',
@@ -47,14 +45,13 @@ describe('When creating a user', () =>{
     });
     const res = httpMocks.createResponse();
     
-    const newList = sinon.stub(wishList, 'create');
+    const newList = sandBox.stub(wishList, 'create');
     newList.resolves({dataValues: {id: 1}});
     
-    const spyUserCreate = sinon.spy(userModel, 'create');
+    const spyUserCreate = sandBox.spy(userModel, 'create');
     
-    return userController.create(req, res).then(() => {
-      expect(spyUserCreate.args[0][0].customerSince).to.deep.equal(new Date());
-
+    return userController.create(req, res).then(() => {  
+      expect(spyUserCreate.args[0][0].customerSince).to.eql(new Date());
     });
   });
 });
