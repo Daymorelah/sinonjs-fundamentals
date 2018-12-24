@@ -21,6 +21,14 @@ module.exports = (app, express) => {
     res.sendFile(path.join(__dirname, '../', 'landing.html'));
   });
 
+  app.get('/currency',(req, res) => {
+    res.sendFile(path.join(__dirname, '../../public', 'item.html'));
+  });
+
+  app.get('/mocha', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public', 'mocha.html'));
+  });
+
   app.get('/books/search', booksController.search);
   setUpRoutes(app, 'books', booksController);
 
